@@ -15,6 +15,8 @@ public class Bank {
 		this.scan = new Scanner(System.in);
 		this.name = name;
 		this.log = -1;
+		um = new UserManager();
+		am = new AccountManager();
 	}
 	
 	private void printMenu() {
@@ -112,18 +114,27 @@ public class Bank {
 		if(isLoggedIn()) {
 			Random ran = new Random();
 			
+			User user = this.um.getList().get(this.log);
+			
 			String accNum = "";
 			for(int i=0; i<3; i++) {
 				accNum += ran.nextInt(8999)+1001;
 				if(i<2)
 					accNum += "-";
 			}
-			Account acc = new Account(this.um.getUser(this.log).getId(), accNum);
-			this.um.getUser(this.log).getUserAccList().add(acc);
-			this.am.addList(acc);
+			Account acc = new Account(user.getId(), accNum);
 			
-			System.out.println("\n...계좌개설 완료\n");
-			System.out.println("발급된 계좌번호 : "+accNum);
+			if(user.getAccountSize() < Account.LIMIT) {
+				this.am.addList(acc);
+				user.addUserAcc(acc);
+				System.out.println();
+				System.out.println("\n...계좌개설 완료\n");
+				System.out.println("발급된 계좌번호 : "+accNum);
+			}
+			else
+				System.out.println("더 이상 개설할 수 없습니다.");
+			
+
 		}
 		else
 			System.out.println("\n로그인 상태에서 가능한 메뉴입니다.\n");
@@ -131,32 +142,36 @@ public class Bank {
 	
 	private void deleteAcc() {
 		if(isLoggedIn()) {
-			for(int i=0; i<this.um.getUser(this.log).getUserAccList().size(); i++) {
-				System.out.println(i+1+". "+this.um.getUser(this.log).getUserAccList().get(i).getNumber());
+			
+			User user = this.um.getList().get(this.log);
+			
+			for(int i=0; i<user.getAccountSize(); i++) {
+				System.out.println(i+1+". "+user.getUserAcc(i).getNumber());
 			}
+			
 			System.out.print("삭제할 계좌번호 : ");
-			int sel = this.scan.nextInt();
+			int sel = this.scan.nextInt()-1;
 			
-			String accNum = "";
-			for(int i=0; i<this.um.getList().size(); i++) {
-				if(this.um.getList().get(i).getId().equals(this.um.getList().get(this.log).getId()))
-					System.out.println(i+1+". "+this.am.getList().get(i).getNumber());
-			}
+			int idx = -1;
+			for(int i=0; i<this.am.getList().size(); i++)
+				if(user.getUserAcc(sel).getNumber().equals(this.am.getAcc(i).getNumber()))
+					idx = i;
 			
-			boolean check = true;
-			for(int i=0; i<this.am.getList().size(); i++) {
-				if(this.am.getList().get(i).getId().equals(this.um.getList().get(this.log).getId()) && this.am.getList().get(i).getNumber().equals(accNum))
-					this.am.getList().remove(i);
-				else
-					check = false;
-			}
-			if(check)
+			if(sel < user.getAccountSize()) {
+				user.removeUserAcc(sel);
+				this.am.removeAcc(idx);
 				System.out.println("\n...계좌 철회 완료\n");
-			else
-				System.out.println("\n계좌번호를 확인하세요\n");
+			}
 		}
 		else
 			System.out.println("\n로그인 상태에서 가능한 메뉴입니다.\n");
+	}
+	
+	private void checkAllAcc() {
+		for(int i=0; i<this.am.getList().size(); i++) {
+			System.out.println(this.am.getList().get(i).getNumber());
+		}
+		
 	}
 	
 	public void run() {
@@ -170,6 +185,7 @@ public class Bank {
 			else if(sel == 4) logout();
 			else if(sel == 5) createAcc();
 			else if(sel == 6) deleteAcc();
+			else if(sel == 7) checkAllAcc();
 		}
 	}
 }

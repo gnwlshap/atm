@@ -19,25 +19,11 @@ public class AccountManager {
 		return reqObj;
 	}
 	
-	public Account getUserById(String id) {
-		int index = -1;
-		return getAcc(index);
-	}
-	
 	public void setAcc(int index, Account acc) {
 		this.list.set(index, acc);
 	}
 	
 	public void removeAcc(int index) {
-		this.list.remove(index);
-	}
-	
-	public void removeAccById(String id) {
-		int index = -1;
-		for(int i=0; i<this.list.size(); i++)
-			if(this.list.get(i).getId().equals(id))
-				index = i;
-			
 		this.list.remove(index);
 	}
 	

@@ -6,7 +6,7 @@ public class User {
 	private String id;
 	private String pw;
 	private String name;
-	private ArrayList<Account> accs;
+	public ArrayList<Account> accs;
 	
 	public User(String id, String pw, String name) {
 		this.id = id;
@@ -24,7 +24,18 @@ public class User {
 	public String getName() {
 		return name;
 	}
-	public ArrayList<Account> getUserAccList() {
-		return accs;
+	public Account getUserAcc(int index) {
+		return this.accs.get(index);
+	}
+	public void addUserAcc(Account acc) {
+		this.accs.add(acc);
+	}
+	public void removeUserAcc(int index) {
+		this.accs.remove(index);
+	}
+	public int getAccountSize() {
+		int size = this.accs.size();
+		
+		return size;
 	}
 }
