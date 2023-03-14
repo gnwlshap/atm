@@ -132,9 +132,7 @@ public class Bank {
 				System.out.println("발급된 계좌번호 : "+accNum);
 			}
 			else
-				System.out.println("더 이상 개설할 수 없습니다.");
-			
-
+				System.out.println("\n더 이상 개설할 수 없습니다.\n");
 		}
 		else
 			System.out.println("\n로그인 상태에서 가능한 메뉴입니다.\n");
@@ -153,15 +151,17 @@ public class Bank {
 			int sel = this.scan.nextInt()-1;
 			
 			int idx = -1;
-			for(int i=0; i<this.am.getList().size(); i++)
-				if(user.getUserAcc(sel).getNumber().equals(this.am.getAcc(i).getNumber()))
-					idx = i;
 			
 			if(sel < user.getAccountSize()) {
+				for(int i=0; i<this.am.getList().size(); i++)
+					if(user.getUserAcc(sel).getNumber().equals(this.am.getAcc(i).getNumber()))
+						idx = i;
 				user.removeUserAcc(sel);
 				this.am.removeAcc(idx);
 				System.out.println("\n...계좌 철회 완료\n");
 			}
+			else
+				System.out.println("\n번호를 확인하세요.\n");
 		}
 		else
 			System.out.println("\n로그인 상태에서 가능한 메뉴입니다.\n");
@@ -171,7 +171,6 @@ public class Bank {
 		for(int i=0; i<this.am.getList().size(); i++) {
 			System.out.println(this.am.getList().get(i).getNumber());
 		}
-		
 	}
 	
 	public void run() {
