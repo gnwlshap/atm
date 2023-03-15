@@ -51,10 +51,6 @@ public class UserManager {
 		return list.size();
 	}
 	// Update
-	public void setList(ArrayList<User> list) {
-		UserManager.list = list;
-	}
-	
 	public void setUser(int index, User user) {
 		list.set(index, user);
 	}

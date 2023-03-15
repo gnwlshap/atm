@@ -41,10 +41,6 @@ public class AccountManager {
 	}
 
 	// Update
-	public void setList(ArrayList<Account> list) {
-		AccountManager.list = list;
-	}
-
 	public void setAccMoney(int index, int money) {
 		list.get(index).setMoney(money);
 	}

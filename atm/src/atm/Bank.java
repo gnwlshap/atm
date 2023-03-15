@@ -55,7 +55,7 @@ public class Bank {
 		User user = new User(id,pw,name);
 		if(this.um.addUser(user)) {
 			System.out.println("\n...회원가입 완료\n");
-			this.fm.saveUserFile(user);
+			saveUserFile();
 		}
 		else
 			System.out.println("중복된 ID입니다.\n");
@@ -72,6 +72,7 @@ public class Bank {
 			this.am.removeAccountById(user.getId(), user.getAccSize());
 			this.log = -1;
 			System.out.println("\n...회원탈퇴 완료\n");
+			saveUserFile();
 		}
 		else
 			System.out.println("\n비밀번호를 확인하세요.\n");
@@ -110,6 +111,7 @@ public class Bank {
 			System.out.println();
 			System.out.println("\n...계좌개설 완료\n");
 			System.out.println("발급된 계좌번호 : "+accNum);
+			saveAccFile();
 		}
 		else
 			System.out.println("\n더 이상 개설할 수 없습니다.\n");
@@ -133,6 +135,7 @@ public class Bank {
 				this.am.removeAcc(idx);
 				this.um.removeUserAcc(user.getId(), sel);
 				System.out.println("\n...계좌 철회 완료\n");
+				saveAccFile();
 			}
 			else
 				System.out.println("\n번호를 확인하세요.\n");
@@ -263,20 +266,66 @@ public class Bank {
 		}
 	}
 	
+	private void saveUserFile() {
+		String userFile = "";
+		for(int i=0; i<this.um.getUserSize(); i++) {
+			userFile += this.um.getUser(i).getId()+"/";
+			userFile += this.um.getUser(i).getPw()+"/";
+			userFile += this.um.getUser(i).getName()+"\n";
+		}
+		this.fm.saveFile("user.txt", userFile);
+	}
 	
-	public void run() {
-		if(this.fm.loadUserFile() != null && this.fm.loadAccFile() != null) {
-			this.um.setList(this.fm.loadUserFile());
-			this.am.setList(this.fm.loadAccFile());
-			for(int i=0; i<this.am.getAllAccSize(); i++) {
-				for(int j=0; j<this.um.getUserSize(); j++) {
-					if(this.am.getAcc(i).getId().equals(this.um.getUser(j).getId())) {
-						Account acc = new Account(this.am.getAcc(i).getId(), this.am.getAcc(i).getAccNum(), this.am.getAcc(i).getMoney());
-						this.um.setUserAcc(this.um.getUser(j), acc);
-					}
+	private void saveAccFile() {
+		String accFile = "";
+		for(int i=0; i<this.am.getAllAccSize(); i++) {
+			accFile += this.am.getAcc(i).getId()+"/";
+			accFile += this.am.getAcc(i).getAccNum()+"/";
+			accFile += this.am.getAcc(i).getMoney()+"\n";
+		}
+		this.fm.saveFile("account.txt", accFile);
+	}
+	
+	private void loadFile() {
+		String accFile = this.fm.loadFile("account.txt"); 
+		if(accFile != "") {
+			String[] accFileLines = accFile.split("\n");
+			for(int i=0; i<accFileLines.length; i++) {
+				String id = accFileLines[i].split("/")[0];
+				String accNum = accFileLines[i].split("/")[1];
+				int money = Integer.parseInt(accFileLines[i].split("/")[2]);
+				
+				Account acc = new Account(id, accNum, money);
+				
+				this.am.addAcc(acc);
+			}
+		}
+		String userFile = this.fm.loadFile("user.txt");
+		if(userFile != "") {
+			String[] userFileLines = userFile.split("\n");
+			for(int i=0; i<userFileLines.length; i++) {
+				String id = userFileLines[i].split("/")[0];
+				String pw = userFileLines[i].split("/")[1];
+				String name = userFileLines[i].split("/")[2];
+				
+				User user = new User(id, pw, name);
+				
+				this.um.addUser(user);
+			}
+		}
+		
+		for(int i=0; i<this.am.getAllAccSize(); i++) {
+			for(int j=0; j<this.um.getUserSize(); j++) {
+				if(this.am.getAcc(i).getId().equals(this.um.getUser(j).getId())) {
+					this.um.setUserAcc(this.um.getUser(j), this.am.getAcc(i));
 				}
 			}
 		}
+	}
+	
+	
+	public void run() {
+		loadFile();
 		while(true) {
 			printMenu();
 			System.out.print("메뉴번호 입력 : ");
