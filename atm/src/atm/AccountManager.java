@@ -7,8 +7,6 @@ public class AccountManager {
 	private static ArrayList<Account> list = new ArrayList<>();
 	// Create
 	public void addAcc(Account acc) {
-		String accNum = accNumGenerator();
-		
 		list.add(acc);
 	}
 	// Read
@@ -29,6 +27,15 @@ public class AccountManager {
 		return reqObj;
 	}
 	
+	public int indexOfByAccNum(String accNum) {
+		int index = -1;
+		for(int i=0; i<list.size(); i++) {
+			if(list.get(i).getAccNum().equals(accNum))
+				index = i;
+		}
+		return index;
+	}
+	
 	public int getAllAccSize() {
 		return list.size();
 	}
@@ -39,6 +46,11 @@ public class AccountManager {
 	}
 	
 	public void setAccMoney(int index, int money) {
+		list.get(index).setMoney(money);
+	}
+	public void setAccMoney(String accNum, int money) {
+		int index = indexOfByAccNum(accNum);
+		
 		list.get(index).setMoney(money);
 	}
 	// Delete

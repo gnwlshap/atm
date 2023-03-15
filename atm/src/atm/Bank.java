@@ -19,15 +19,15 @@ public class Bank {
 	}
 	
 	private void printMenu() {
-		System.out.printf("===== %s =====\n",this.name);
+		System.out.printf("====== %s ======\n",this.name);
 		System.out.println("1. 회원가입");
 		System.out.println("2. 로그인");
 		System.out.println("0. 종료");
 	}
 	
 	private void printLoginMenu() {
-		System.out.printf("===== %s =====\n",this.name);
-		System.out.printf("=== %s님 하이 ===\n",this.um.getUser(this.log).getName());
+		System.out.printf("====== %s ======\n",this.name);
+		System.out.printf("  %s님 환영합니다!!!\n",this.um.getUser(this.log).getName());
 		System.out.println("1. 입급");
 		System.out.println("2. 출금");
 		System.out.println("3. 이체");
@@ -158,12 +158,15 @@ public class Bank {
 			int sel = this.scan.nextInt()-1;
 			
 			if(sel < user.getAccSize()) {
+				System.out.printf("\n계좌 잔액 : %d원\n\n",user.getAcc(sel).getMoney());
 				System.out.print("입금 금액 : ");
 				int money = this.scan.nextInt();
 				
 				if(money > 0) {
 					this.um.setUserAccMoney(user.getId(), sel, money);
 					this.am.setAccMoney(sel, money);
+					System.out.println("\n입금 완료.");
+					System.out.printf("\n계좌 잔액 : %d원\n\n",user.getAcc(sel).getMoney());
 				}
 			}
 		}
@@ -176,6 +179,7 @@ public class Bank {
 			int sel = this.scan.nextInt()-1;
 			
 			if(sel < user.getAccSize()) {
+				System.out.printf("\n계좌 잔액 : %d원\n\n",user.getAcc(sel).getMoney());
 				System.out.print("출금 금액 : ");
 				int money = this.scan.nextInt();
 				
@@ -184,6 +188,8 @@ public class Bank {
 				if(money <= curMoney) {
 					this.um.setUserAccMoney(user.getId(), sel, curMoney - money);
 					this.am.setAccMoney(sel, curMoney - money);
+					System.out.println("\n출금 완료.");
+					System.out.printf("\n계좌 잔액 : %d원\n\n",user.getAcc(sel).getMoney());
 				}
 				else
 					System.out.println("\n잔액이 부족합니다.\n");
@@ -198,12 +204,18 @@ public class Bank {
 			int sel = this.scan.nextInt()-1;
 			
 			if(sel < user.getAccSize()) {
+				System.out.printf("\n계좌 잔액 : %d원\n\n",user.getAcc(sel).getMoney());
 				System.out.print("이체할 계좌번호 : ");
-				String transferedAcc = this.scan.next();
+				String transferedAccNum = this.scan.next();
 				
+				boolean checkTransfer = false;
 				for(int i=0; i<this.am.getAllAccSize(); i++) {
-					if(this.am.getAcc(i).getAccNum().equals(transferedAcc)) {
-						System.out.printf("이체 계좌번호 예금주명 : %s\n",this.um.getUserById(this.am.getAcc(i).getId()).getName());
+					if(this.am.getAcc(i).getAccNum().equals(transferedAccNum)) {
+						checkTransfer = true;
+						
+						User transferedUser = this.um.getUserById(this.am.getAcc(i).getId());
+						
+						System.out.printf("이체 계좌번호 예금주명 : %s\n",transferedUser.getName());
 						
 						System.out.print("이체 금액 : ");
 						int money = this.scan.nextInt();
@@ -211,20 +223,21 @@ public class Bank {
 						int curMoney = user.getAcc(sel).getMoney();
 						int transferedCurMoney = this.am.getAcc(i).getMoney();
 						
-						User transferedUser = this.um.getUser(i);
 						
 						if(money <= curMoney) {
 							this.um.setUserAccMoney(user.getId(), sel, curMoney - money);
-							this.um.setUserAccMoney(transferedUser.getId(), transferedAcc, transferedCurMoney + money);
+							this.um.setUserAccMoney(transferedUser.getId(), transferedAccNum, transferedCurMoney + money);
 							this.am.setAccMoney(sel, curMoney - money);
-							this.am.setAccMoney(sel, curMoney - money);
+							this.am.setAccMoney(this.am.indexOfByAccNum(transferedAccNum), transferedCurMoney + money);
+							System.out.println("\n이체 완료.");
+							System.out.printf("\n계좌 잔액 : %d원\n\n",user.getAcc(sel).getMoney());
 						}
 						else
 							System.out.println("\n잔액이 부족합니다.\n");
 					}
-					else 
-						System.out.println("\n없는 계좌번호입니다.\n");
 				}
+				if(!checkTransfer)
+					System.out.println("\n없는 계좌번호입니다.\n");
 			}
 		}
 	}
@@ -243,7 +256,7 @@ public class Bank {
 		int sel = this.scan.nextInt()-1;
 		
 		if(sel < user.getAccSize()) {
-			System.out.printf("\n현 계좌 잔액 : %d원\n\n",user.getAcc(sel).getMoney());
+			System.out.printf("\n계좌 잔액 : %d원\n\n",user.getAcc(sel).getMoney());
 		}
 	}
 	

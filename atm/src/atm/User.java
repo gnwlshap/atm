@@ -61,11 +61,6 @@ public class User {
 	public void setAccMoney(int index, int money) {
 		this.accs.get(index).setMoney(money);
 	}
-	public void setAccMoney(String accNum, int money) {
-		int index = indexOfByAccNum(accNum);
-		
-		this.accs.get(index).setMoney(money);
-	}
 	public void removeAcc(int index) {
 		this.accs.remove(index);
 	}
