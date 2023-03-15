@@ -10,15 +10,19 @@ public class UserManager {
 		User check = getUserById(user.getId());
 		// 자체 확인
 		if(check == null) {
-			this.list.add(user);
+			list.add(user);
 			return true;
 		}
 		else
 			return false;
 	}
+	
+	public void addUserAcc(int index, Account acc) {
+		list.get(index).addAcc(acc);
+	}
 	// Read
 	public User getUser(int index) {
-		User user = this.list.get(index);
+		User user = list.get(index);
 		// 사본 제공
 		User reqObj = new User(user.getId(), user.getPw(), user.getName(), user.getUserAccList());
 		return reqObj;
@@ -38,29 +42,52 @@ public class UserManager {
 		int index = -1;
 		for(User user : list) {
 			if(user.getId().equals(id))
-				index = this.list.indexOf(user);
+				index = list.indexOf(user);
 		}
 		return index;
 	}
 	
 	public int getUserSize() {
-		return this.list.size();
+		return list.size();
 	}
 	// Update
 	public void setUser(int index, User user) {
-		this.list.set(index, user);
+		list.set(index, user);
+	}
+	
+	public void setUserAcc(User user, Account acc) {
+		int index = indexOfById(user.getId());
+		
+		list.get(index).addAcc(acc);
+	}
+	public void setUserAccMoney(String id, int index, int money) {
+		int idx = indexOfById(id);
+		
+		list.get(idx).setAccMoney(index, money);
+	}
+	public void setUserAccMoney(String id, String accNum, int money) {
+		int idx = indexOfById(id);
+		int index = list.get(idx).indexOfByAccNum(accNum);
+		
+		list.get(idx).setAccMoney(index, money);
 	}
 	// Delete
 	public void removeUser(int index) {
-		this.list.remove(index);
+		list.remove(index);
+	}
+	
+	public void removeUserAcc(String id, int index) {
+		int idx = indexOfById(id);
+		
+		list.get(idx).removeAcc(index);
 	}
 	
 	public void removeUserById(String id) {
 		int index = -1;
-		for(int i=0; i<this.list.size(); i++)
-			if(this.list.get(i).getId().equals(id))
+		for(int i=0; i<list.size(); i++)
+			if(list.get(i).getId().equals(id))
 				index = i;
 			
-		this.list.remove(index);
+		list.remove(index);
 	}
 }

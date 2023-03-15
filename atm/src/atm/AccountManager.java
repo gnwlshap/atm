@@ -32,6 +32,7 @@ public class AccountManager {
 	public int getAllAccSize() {
 		return list.size();
 	}
+
 	// Update
 	public void setAcc(int index, Account acc) {
 		list.set(index, acc);

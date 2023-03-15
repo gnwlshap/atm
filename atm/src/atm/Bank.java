@@ -30,8 +30,8 @@ public class Bank {
 		System.out.printf("=== %s님 하이 ===\n",this.um.getUser(this.log).getName());
 		System.out.println("1. 입급");
 		System.out.println("2. 출금");
-		System.out.println("3. 조회");
-		System.out.println("4. 이체");
+		System.out.println("3. 이체");
+		System.out.println("4. 조회");
 		System.out.println("5. 계좌개설");
 		System.out.println("6. 계좌철회");
 		System.out.println("7. 회원탈퇴");
@@ -66,7 +66,7 @@ public class Bank {
 		String pw = this.scan.next();
 		if(user.getPw().equals(pw)) {
 			this.um.removeUser(this.log);
-			this.am.removeAccountById(user.getId(), user.getUserAccSize());
+			this.am.removeAccountById(user.getId(), user.getAccSize());
 			this.log = -1;
 			System.out.println("\n...회원탈퇴 완료\n");
 		}
@@ -101,9 +101,9 @@ public class Bank {
 		
 		Account acc = new Account(user.getId(), accNum);
 		
-		if(user.getUserAccSize() < Account.LIMIT) {
+		if(user.getAccSize() < Account.LIMIT) {
 			this.am.addAcc(acc);
-			user.addUserAcc(acc);
+			this.um.addUserAcc(this.log, acc);
 			System.out.println();
 			System.out.println("\n...계좌개설 완료\n");
 			System.out.println("발급된 계좌번호 : "+accNum);
@@ -122,13 +122,13 @@ public class Bank {
 			
 			int idx = -1;
 			
-			if(sel < user.getUserAccSize()) {
+			if(sel < user.getAccSize()) {
 				for(int i=0; i<this.am.getAllAccSize(); i++)
-					if(user.getUserAcc(sel).getAccNum().equals(this.am.getAcc(i).getAccNum()))
+					if(user.getAcc(sel).getAccNum().equals(this.am.getAcc(i).getAccNum()))
 						idx = i;
 				
 				this.am.removeAcc(idx);
-				user.removeUserAcc(sel);
+				this.um.removeUserAcc(user.getId(), sel);
 				System.out.println("\n...계좌 철회 완료\n");
 			}
 			else
@@ -139,9 +139,10 @@ public class Bank {
 	private boolean printMyAcc() {
 		User user = this.um.getUser(this.log);
 		
-		if(user.getUserAccSize() > 0) {
-			for(int i=0; i<user.getUserAccSize(); i++)
-				System.out.println(i+1+". "+user.getUserAcc(i).getAccNum());
+		if(user.getAccSize() > 0) {
+			for(int i=0; i<user.getAccSize(); i++)
+				System.out.println(i+1+". "+user.getAcc(i).getAccNum());
+			System.out.println();
 			return true;
 		}
 		else {
@@ -151,33 +152,101 @@ public class Bank {
 	}
 	
 	private void deposit() {
+		User user = this.um.getUser(this.log);
 		if(printMyAcc()) {
-			
 			System.out.print("계좌 선택 : ");
 			int sel = this.scan.nextInt()-1;
 			
-			System.out.print("입금 금액 : ");
-			int money = this.scan.nextInt();
+			if(sel < user.getAccSize()) {
+				System.out.print("입금 금액 : ");
+				int money = this.scan.nextInt();
+				
+				if(money > 0) {
+					this.um.setUserAccMoney(user.getId(), sel, money);
+					this.am.setAccMoney(sel, money);
+				}
+			}
 		}
-		
-		
-		
-	}
-	private void withdraw() {
-		
-	}
-	private void checkMyInfo() {
-		
-	}
-	private void transfer() {
-		
 	}
 	
-	private void checkAllAcc() {
-		for(int i=0; i<this.am.getAllAccSize(); i++) {
-			System.out.println(this.am.getAcc(i).getAccNum());
+	private void withdraw() {
+		User user = this.um.getUser(this.log);
+		if(printMyAcc()) {
+			System.out.print("계좌 선택 : ");
+			int sel = this.scan.nextInt()-1;
+			
+			if(sel < user.getAccSize()) {
+				System.out.print("출금 금액 : ");
+				int money = this.scan.nextInt();
+				
+				int curMoney = user.getAcc(sel).getMoney();
+				
+				if(money <= curMoney) {
+					this.um.setUserAccMoney(user.getId(), sel, curMoney - money);
+					this.am.setAccMoney(sel, curMoney - money);
+				}
+				else
+					System.out.println("\n잔액이 부족합니다.\n");
+			}
 		}
 	}
+	
+	private void transfer() {
+		User user = this.um.getUser(this.log);
+		if(printMyAcc()) {
+			System.out.print("계좌 선택 : ");
+			int sel = this.scan.nextInt()-1;
+			
+			if(sel < user.getAccSize()) {
+				System.out.print("이체할 계좌번호 : ");
+				String transferedAcc = this.scan.next();
+				
+				for(int i=0; i<this.am.getAllAccSize(); i++) {
+					if(this.am.getAcc(i).getAccNum().equals(transferedAcc)) {
+						System.out.printf("이체 계좌번호 예금주명 : %s\n",this.um.getUserById(this.am.getAcc(i).getId()).getName());
+						
+						System.out.print("이체 금액 : ");
+						int money = this.scan.nextInt();
+						
+						int curMoney = user.getAcc(sel).getMoney();
+						int transferedCurMoney = this.am.getAcc(i).getMoney();
+						
+						User transferedUser = this.um.getUser(i);
+						
+						if(money <= curMoney) {
+							this.um.setUserAccMoney(user.getId(), sel, curMoney - money);
+							this.um.setUserAccMoney(transferedUser.getId(), transferedAcc, transferedCurMoney + money);
+							this.am.setAccMoney(sel, curMoney - money);
+							this.am.setAccMoney(sel, curMoney - money);
+						}
+						else
+							System.out.println("\n잔액이 부족합니다.\n");
+					}
+					else 
+						System.out.println("\n없는 계좌번호입니다.\n");
+				}
+			}
+		}
+	}
+	
+	private void checkMyInfo() {
+		
+		System.out.printf("\n이름 : %s\nID : %s\n보유 계좌 : \n",this.um.getUser(this.log).getName(), this.um.getUser(this.log).getId());
+		if(printMyAcc()) {
+			checkMyAccMoney();
+		}
+	}
+	
+	private void checkMyAccMoney() {
+		User user = this.um.getUser(this.log);
+		System.out.print("잔액 조회(번호) : ");
+		int sel = this.scan.nextInt()-1;
+		
+		if(sel < user.getAccSize()) {
+			System.out.printf("\n현 계좌 잔액 : %d원\n\n",user.getAcc(sel).getMoney());
+		}
+	}
+	
 	
 	public void run() {
 		while(true) {
@@ -196,8 +265,8 @@ public class Bank {
 				sel = this.scan.nextInt();
 				if(sel == 1) deposit();
 				else if(sel == 2) withdraw();
-				else if(sel == 3) checkMyInfo();
-				else if(sel == 4) transfer();
+				else if(sel == 3) transfer();
+				else if(sel == 4) checkMyInfo();
 				else if(sel == 5) createAcc();
 				else if(sel == 6) deleteAcc();
 				else if(sel == 7) leave();

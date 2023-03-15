@@ -6,7 +6,7 @@ public class User {
 	private String id;
 	private String pw;
 	private String name;
-	public ArrayList<Account> accs;
+	private ArrayList<Account> accs;
 	
 	public User(String id, String pw, String name) {
 		this.id = id;
@@ -31,21 +31,42 @@ public class User {
 	public String getName() {
 		return name;
 	}
-	public void addUserAcc(Account acc) {
+	public void addAcc(Account acc) {
 		this.accs.add(acc);
 	}
 	public ArrayList<Account> getUserAccList() {
 		return (ArrayList<Account>) this.accs.clone();
 	}
-	public Account getUserAcc(int index) {
-		return this.accs.get(index);
+	public Account getAcc(int index) {
+		Account acc = this.accs.get(index);
+		
+		Account reqObj = new Account(acc.getId(), acc.getAccNum(), acc.getMoney());
+		return reqObj;
 	}
-	public void removeUserAcc(int index) {
-		this.accs.remove(index);
+	
+	public int indexOfByAccNum(String accNum) {
+		int index = -1;
+		for(int i=0; i<this.accs.size(); i++) {
+			if(getAcc(i).getAccNum().equals(accNum))
+				index = i;
+		}
+		return index;
 	}
-	public int getUserAccSize() {
+	
+	public int getAccSize() {
 		int size = this.accs.size();
 		
 		return size;
+	}
+	public void setAccMoney(int index, int money) {
+		this.accs.get(index).setMoney(money);
+	}
+	public void setAccMoney(String accNum, int money) {
+		int index = indexOfByAccNum(accNum);
+		
+		this.accs.get(index).setMoney(money);
+	}
+	public void removeAcc(int index) {
+		this.accs.remove(index);
 	}
 }
