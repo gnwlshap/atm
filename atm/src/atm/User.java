@@ -15,6 +15,13 @@ public class User {
 		this.accs = new ArrayList<>();
 	}
 	
+	public User(String id, String pw, String name, ArrayList<Account> accs) {
+		this.id = id;
+		this.pw = pw;
+		this.name = name;
+		this.accs = accs;
+	}
+	
 	public String getId() {
 		return id;
 	}
@@ -24,16 +31,19 @@ public class User {
 	public String getName() {
 		return name;
 	}
-	public Account getUserAcc(int index) {
-		return this.accs.get(index);
-	}
 	public void addUserAcc(Account acc) {
 		this.accs.add(acc);
+	}
+	public ArrayList<Account> getUserAccList() {
+		return (ArrayList<Account>) this.accs.clone();
+	}
+	public Account getUserAcc(int index) {
+		return this.accs.get(index);
 	}
 	public void removeUserAcc(int index) {
 		this.accs.remove(index);
 	}
-	public int getAccountSize() {
+	public int getUserAccSize() {
 		int size = this.accs.size();
 		
 		return size;
