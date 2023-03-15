@@ -9,6 +9,7 @@ public class Bank {
 	
 	private UserManager um;
 	private AccountManager am;
+	private FileManager fm;
 	
 	public Bank(String name) {
 		this.scan = new Scanner(System.in);
@@ -16,6 +17,7 @@ public class Bank {
 		this.log = -1;
 		um = new UserManager();
 		am = new AccountManager();
+		fm = new FileManager();
 	}
 	
 	private void printMenu() {
@@ -53,6 +55,7 @@ public class Bank {
 		User user = new User(id,pw,name);
 		if(this.um.addUser(user)) {
 			System.out.println("\n...회원가입 완료\n");
+			this.fm.saveUserFile(user);
 		}
 		else
 			System.out.println("중복된 ID입니다.\n");
@@ -262,6 +265,18 @@ public class Bank {
 	
 	
 	public void run() {
+		if(this.fm.loadUserFile() != null && this.fm.loadAccFile() != null) {
+			this.um.setList(this.fm.loadUserFile());
+			this.am.setList(this.fm.loadAccFile());
+			for(int i=0; i<this.am.getAllAccSize(); i++) {
+				for(int j=0; j<this.um.getUserSize(); j++) {
+					if(this.am.getAcc(i).getId().equals(this.um.getUser(j).getId())) {
+						Account acc = new Account(this.am.getAcc(i).getId(), this.am.getAcc(i).getAccNum(), this.am.getAcc(i).getMoney());
+						this.um.setUserAcc(this.um.getUser(j), acc);
+					}
+				}
+			}
+		}
 		while(true) {
 			printMenu();
 			System.out.print("메뉴번호 입력 : ");
