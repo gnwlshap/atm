@@ -73,6 +73,7 @@ public class Bank {
 			this.log = -1;
 			System.out.println("\n...회원탈퇴 완료\n");
 			saveUserFile();
+			saveAccFile();
 		}
 		else
 			System.out.println("\n비밀번호를 확인하세요.\n");
